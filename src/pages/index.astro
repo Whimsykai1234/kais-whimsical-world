@@ -1,0 +1,234 @@
+   ---
+   import BaseHead from '../components/BaseHead.astro';
+   import Header from '../components/Header.astro';
+   import Footer from '../components/Footer.astro';
+   import BottomGarland from '../components/BottomGarland.astro';
+   import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+   import aboutPhoto from '../assets/about-photo.jpg';
+   import aboutMePhoto from '../assets/fonts/aboutme.jpg';
+      import { getCollection } from 'astro:content';
+
+   const allPosts = await   getCollection('blog', ({ id }) => !id.startsWith('es/'));
+   const searchItems = allPosts.map((post) => ({
+   	title: post.data.title,
+   	description: post.data.description,
+   	type: post.data.category === 'crochet' ? 'Crochet' : 'Recipe',
+   	url: `/blog/${post.id}/`,
+   }));
+
+   ---
+
+   <!doctype html>
+   <html lang="en">
+   	<head>
+   		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+   		<style>
+   			h1 {
+   				text-align: left;
+   				margin-bottom: 2rem;
+   				color: white !important;
+				margin-left: 0rem;
+   			}
+   			.card {
+  display: flex;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  background: #c07233;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.card-text {
+  flex: 0 0 50%;
+  box-sizing: border-box;
+  padding: 2rem 3rem 3rem 0rem;
+  display: flex;
+  align-items: center;
+}
+
+@media (max-width: 640px) {
+  .card-text {
+    flex-basis: 100%;
+  }
+}
+
+.card img {
+  width: 45%;
+  height: 480px;
+  object-fit: cover;
+  margin: 0;
+  display: block;
+  border-radius: 0 16px 16px 0;
+}
+.card img.about-me-photo {
+  width: min(36vw, 20rem);
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 50%;
+  align-self: center;
+  margin: 1rem auto;
+}
+@media (max-width: 640px) {
+  .card {
+    flex-direction: column;
+  }
+  .card img.about-me-photo {
+    width: min(70vw, 20rem);
+  }
+}
+   			.card p {
+				text-align:left;
+   				margin: 0.8rem;
+   				color: #5c3b2a;
+				font-size: 1.5rem;
+   			}
+   		</style>
+   	</head>
+   	<body>
+   		<Header />
+   		<main>
+   			<div class="about-heading">
+   				<h1>About this goofy site</h1>
+   				<div class="search-box">
+   					<label class="visually-hidden" for="search-input">Search crochet patterns and recipes</label>
+   					<input id="search-input" type="search" placeholder="Search patterns and recipes…" autocomplete="off" />
+   				</div>
+   			</div>
+   			<div id="search-results" aria-live="polite"></div>
+<div class="card">
+  <div class="card-text">
+    <p>
+      Hey! My name is Kai.
+
+	  Welcome to my safe space of the internet :) where I'm going to share my little hobbies. Here, you'll be able to find my favorite recipes as well as the crochet patterns I'm using for my projects.
+    </p>
+  </div>
+  <img class="about-me-photo" src={aboutMePhoto.src} alt="Kai" />
+</div>
+   		</main>
+        
+   <script is:inline type="application/json" id="search-data" set:html={JSON.stringify(searchItems)} />
+   <script>
+   	function setupSearch() {
+   		const input = document.getElementById('search-input');
+   		const results = document.getElementById('search-results');
+   		const dataEl = document.getElementById('search-data');
+   		if (!input || !results || !dataEl || input.dataset.ready) return;
+   		input.dataset.ready = '1';
+   		const items = JSON.parse(dataEl.textContent || '[]');
+   		input.addEventListener('input', () => {
+   			const q = input.value.trim().toLowerCase();
+   			results.innerHTML = '';
+   			if (!q) return;
+   			const matches = items.filter((item) =>
+   				item.title.toLowerCase().startsWith(q)
+   			);
+   			if (matches.length === 0) {
+   				results.innerHTML = '<p class="no-results">No results found</p>';
+   				return;
+   			}
+   			for (const item of matches) {
+   				const a = document.createElement('a');
+   				a.href = item.url;
+   				a.className = 'result';
+   				const h = document.createElement('h3');
+   				h.textContent = item.title;
+   				const p = document.createElement('p');
+   				p.textContent = item.type + ' · ' + item.description;
+   				a.append(h, p);
+   				results.append(a);
+   			}
+   		});
+   	}
+   	setupSearch();
+   	document.addEventListener('astro:page-load', setupSearch);
+   </script>
+   <style is:global>
+   	.about-heading {
+   		display: flex;
+   		align-items: flex-start;
+   		justify-content: space-between;
+   		gap: 1.5rem;
+   		margin-bottom: 1.5rem;
+   	}
+   	.about-heading h1 {
+   		margin: 0;
+   	}
+   	.search-box {
+   		width: min(100%, 22rem);
+   		margin-left: auto;
+   	}
+   	.visually-hidden {
+   		position: absolute;
+   		width: 1px;
+   		height: 1px;
+   		padding: 0;
+   		margin: -1px;
+   		overflow: hidden;
+   		clip: rect(0, 0, 0, 0);
+   		white-space: nowrap;
+   		border: 0;
+   	}
+   	#search-input {
+   		width: 100%;
+   		box-sizing: border-box;
+   		padding: 0.8rem 1.2rem;
+   		font-size: 1rem;
+   		color: white;
+   		background: transparent;
+   		border: 2px solid white;
+   		border-radius: 999px;
+   		outline: none;
+   	}
+   	#search-input::placeholder {
+   		color: rgba(255, 255, 255, 0.8);
+   	}
+   	#search-input:focus {
+   		background: rgba(255, 255, 255, 0.15);
+   	}
+   	#search-results {
+   		display: grid;
+   		gap: 1rem;
+   		margin-top: 1rem;
+   	}
+   	.result {
+   		display: block;
+   		padding: 1rem 1.5rem;
+   		text-align: center;
+   		background: #F3A768;
+   		border: 2px solid white;
+   		border-radius: 24px;
+   		text-decoration: none;
+   	}
+   	.result h3 {
+   		margin: 0 0 0.3rem;
+   		color: white;
+   		font-size: 1.3rem;
+   	}
+   	.result p {
+   		margin: 0;
+   		color: #5c3b2a;
+   		font-size: 0.95rem;
+   	}
+   	.no-results {
+   		text-align: center;
+   		color: white;
+   	}
+   	@media (max-width: 640px) {
+   		.about-heading {
+   			align-items: stretch;
+   			flex-direction: column;
+   			gap: 0.75rem;
+   		}
+   		.search-box {
+   			width: 100%;
+   		}
+   	}
+   </style>
+   		<BottomGarland />
+   		<Footer />
+   	</body>
+   </html>
+   import doodles from '../assets/doodles.jpeg';

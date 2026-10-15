@@ -1,0 +1,131 @@
+---
+import { SITE_TITLE } from '../consts';
+import HeaderLink from './HeaderLink.astro';
+      const rawPath = Astro.url.pathname;
+   const isEs = rawPath === '/es' || rawPath.startsWith('/es/');
+   const prefix = isEs ? '/es' : '';
+   const labels = isEs
+   	? { about: 'Sobre mí', recipes: 'Recetas', crochet: 'Crochet', title: 'El maravilloso mundo de Kai' }
+   	: { about: 'About', recipes: 'Recipes', crochet: 'Crochet', title: SITE_TITLE };
+   const otherLang = isEs ? 'EN' : 'ES';
+   const otherHref = isEs ? rawPath.replace(/^\/es/, '') || '/' : '/es' + rawPath;
+   const path = rawPath.replace(/\/$/, '').replace(/^\/es/, '') || '/';
+   const showBack = !['/', '/recipes', '/crochet'].includes(path);
+---
+
+<header>
+	   <nav>
+   	<h2><a href={prefix + '/'}>{labels.title}</a></h2>
+   	<div class="internal-links">
+   		<HeaderLink href={prefix || '/'}>{labels.about}<span class="underline"></span></HeaderLink>
+   		<HeaderLink href={prefix + '/recipes'}>{labels.recipes}<span class="underline"></span></HeaderLink>
+   		<HeaderLink href={prefix + '/crochet'}>{labels.crochet}<span class="underline"></span></HeaderLink>
+   	</div>
+   	<a class="lang-switch" href={otherHref}>{otherLang}</a>
+   </nav>
+	   <div class="decor" aria-hidden="true" transition:persist="garland"><span class="decor-track">{'𓍊𓋼𓍊𓋼𓍊 '.repeat(80)}</span></div>
+
+</header>
+     {showBack && (
+   	<div class="back-bar">
+   		<button class="back-arrow" aria-label="Go back" onclick={`history.length > 1 ? history.back() : (location.href = '${prefix}/recipes')`}>←</button>
+   	</div>
+   )}
+<style>
+	   .lang-switch {
+   	padding: 0.1em 0.8em;
+   	font-size: 0.9rem;
+   	border: 2px solid #fbf8f8;
+   	border-radius: 999px;
+   	text-decoration: none;
+   }
+	   .decor-track {
+   	display: inline-block;
+   	white-space: pre;
+   	animation: garland 300s linear infinite;
+   }
+
+   @keyframes garland {
+   	from {
+   		transform: translateX(-50%);
+   	}
+   	to {
+   		transform: translateX(0);
+   	}
+   }
+
+   @media (prefers-reduced-motion: reduce) {
+   	.decor-track {
+   		animation: none;
+   	}
+   }
+	header {
+		margin: 0;
+		padding: 0 1em;
+		background: white;
+		box-shadow: 0 2px 8px rgba(var(--black), 5%);
+		 
+	}
+	h2 {
+		margin: 0;
+		font-size: 1.75em;
+	}
+
+	h2 a,
+	h2 a.active {
+		text-decoration: none;
+	}
+	nav {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+	}
+	nav a {
+		padding: 1em 0.5em;
+		color: var(--black);
+		border-bottom: 4px solid transparent;
+		text-decoration: none;
+	}
+	nav a.active {font-size: 2rem
+
+		text-decoration: none;
+		border-bottom-color: var(--accent);
+	}
+	.social-links,
+	.social-links a {
+		display: flex;
+	}
+	@media (max-width: 720px) {
+		.social-links {
+			display: none;
+		}
+	}
+
+   .decor {
+   	white-space: nowrap;
+   	overflow: hidden;
+   	padding: 0.3em 0 0.6em;
+   	font-size: 1.6rem;
+   	letter-spacing: 0.3em;
+   	color: #F3A768;
+   	user-select: none;
+   }
+         .back-bar {
+   	width: 720px;
+   	max-width: calc(100% - 2em);
+   	margin: 1em auto 0;
+   	padding: 0 1em;
+   }
+   .back-arrow {
+   	background: none;
+   	border: none;
+   	color: white;
+   	font-size: 3rem;
+   	line-height: 0.5;
+   	cursor: pointer;
+   	padding: 0;
+	margin-bottom: 0;
+   }
+      </style>
+
+   

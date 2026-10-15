@@ -1,0 +1,83 @@
+   ---
+   import BaseHead from '../../../components/BaseHead.astro';
+   import Header from '../../../components/Header.astro';
+   import Footer from '../../../components/Footer.astro';
+   import BottomGarland from '../../../components/BottomGarland.astro';
+   import { SITE_TITLE, SITE_DESCRIPTION } from '../../../consts';
+   import { CATEGORIES } from '../../../categories';
+   import { getCollection } from 'astro:content';
+
+   export async function getStaticPaths() {
+   	const allPosts = await   getCollection('blog', ({ id }) => id.startsWith('es/'));
+   	return CATEGORIES.map((category) => ({
+   		params: { category: category.slug },
+   		props: {
+   			category,
+   			posts: allPosts
+   				.filter((post) => post.data.category === category.slug)
+   				.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()),
+   		},
+   	}));
+   }
+
+   const { category, posts } = Astro.props;
+   ---
+
+   <!doctype html>
+   <html lang="en">
+   	<head>
+   		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+   		<style>
+   			h1 {
+   				text-align: center;
+   				margin-bottom: 2rem;
+				color: white !important;
+   			}
+   			.cards {
+   				display: grid;
+   				gap: 1.5rem;
+   			}
+   			.card {
+   				display: block;
+   				padding: 1.5rem 2rem;
+   				background: #C07233 ;
+   				border: 2px solid #815537;
+   				border-radius: 24px;
+   				box-shadow: 0 8px 20px rgba(180, 90, 40, 0.15);
+   				text-decoration: none;
+   				transition: transform 0.2s, box-shadow 0.2s;
+   			}
+   			.card:hover {
+   				transform: translateY(-4px);
+   				box-shadow: 0 12px 28px rgba(180, 90, 40, 0.25);
+   			}
+   			.card h2 {
+   				margin: 0 0 0.5rem;
+   				color: white;
+   			}
+   			.card p {
+   				margin: 0;
+   				color: #5c3b2a;
+   			}
+   		</style>
+   	</head>
+   	<body>
+   		<Header />
+   		<main>
+   			<h1>{category.name_es}</h1>
+   			<div class="cards">
+   				{
+   					posts.map((post) => (
+   						<a class="card" href={`/es/blog/${post.id.replace('es/', '')}/`}>
+   							<h2>{post.data.title}</h2>
+   							<p>{post.data.description}</p>
+   						</a>
+   					))
+   				}
+   			</div>
+   		</main>
+   		<BottomGarland />
+   		<Footer />
+   	</body>
+   </html>
+   

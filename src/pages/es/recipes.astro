@@ -1,0 +1,78 @@
+   ---
+   import BaseHead from '../../components/BaseHead.astro';
+   import Header from '../../components/Header.astro';
+   import Footer from '../../components/Footer.astro';
+   import BottomGarland from '../../components/BottomGarland.astro';
+   import { SITE_TITLE, SITE_DESCRIPTION } from '../../consts';
+   import { CATEGORIES } from '../../categories';
+   import { getCollection } from 'astro:content';
+
+   const posts = await   getCollection('blog', ({ id }) => id.startsWith('es/'));
+   const categories = CATEGORIES.map((category) => ({
+   	...category,
+   	count: posts.filter((post) => post.data.category === category.slug).length,
+   }));
+   ---
+
+   <!doctype html>
+   <html lang="en">
+   	<head>
+   		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+   		<style>
+   			h1 {   color: white !important;
+   				text-align: center;
+   				margin-bottom: 2rem;
+   			}
+   			.cards {
+   				display: grid;
+   				   grid-template-columns: repeat(2, 1fr);
+   				gap: 1.5rem;
+   			}
+   			.card {
+   				display: block;
+   				padding: 1.2rem 1.5rem;
+   				text-align: center;
+   				background: #C07233;
+   				border: 2px solid white;
+   				border-radius: 24px;
+   				box-shadow: 0 8px 20px rgba(180, 90, 40, 0.15);
+   				text-decoration: none;
+   				transition: transform 0.2s, box-shadow 0.2s;
+   			}
+   			.card:hover {
+   				transform: translateY(-4px);
+   				box-shadow: 0 12px 28px rgba(180, 90, 40, 0.25);
+   			}
+   			.card h2 {
+   				margin: 0 0 0.5rem;
+   				color: white;
+				font-size: 1.8rem;
+   			}
+   			.card p {
+   				margin: 0;
+   				color: #5c3b2a;
+   			}
+   		</style>
+   	</head>
+   	<body>
+   		<Header />
+   		<main>
+   			   <h1>Find some cozyness in baking</h1>
+   			<div class="cards">
+   				{
+   					categories.map((category) => (
+   						<a class="card" href={`/es/category/${category.slug}/`}>
+   							<h2>{category.name_es}</h2>
+   							<p>
+   								{category.count} {category.count === 1 ? 'receta' : 'recetas'}
+   							</p>
+   						</a>
+   					))
+   				}
+   			</div>
+   		</main>
+   		<BottomGarland />
+   		<Footer />
+   	</body>
+   </html>
+   
